@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Parte C - Celda de manufactura (primitivas)</title>
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.1/dist/aframe-master.min.js"></script>
+  </head>
+  <body>
+    <a-scene background="color: #ECECEC">
+
+      <!-- ============ PISO Y CIELO ============ -->
+      <a-plane rotation="-90 0 0" width="20" height="20" color="#B0B0B0" shadow></a-plane>
+      <a-sky color="#DDEEFF"></a-sky>
+
+      <!-- ============ GRUPO: CELDA DE MANUFACTURA ============ -->
+      <!-- Se usa un a-entity padre para mantener jerarquía espacial:
+           todo lo que está dentro se mueve/escala junto con el grupo -->
+      <a-entity id="celda-manufactura" position="0 0 -6">
+
+        <!-- ---- Tanque de almacenamiento (cilindro) ---- -->
+        <a-entity id="tanque" position="-4 0 0">
+          <a-cylinder position="0 1 0" radius="0.8" height="2" color="#3A86FF"></a-cylinder>
+          <a-cylinder position="0 2.05 0" radius="0.85" height="0.1" color="#023E8A"></a-cylinder>
+          <a-text value="TANQUE" position="0 2.6 0" align="center" color="#000" width="4"></a-text>
+        </a-entity>
+
+        <!-- ---- Banda transportadora (a-box como estructura) ---- -->
+        <a-entity id="banda" position="0 0 0">
+          <!-- estructura / base de la banda -->
+          <a-box position="0 0.4 0" width="6" height="0.2" depth="1" color="#495057"></a-box>
+          <!-- rodillos en los extremos (a-cylinder como ejes) -->
+          <a-cylinder position="-3 0.4 0" radius="0.25" height="1.1" rotation="0 0 90" color="#FFC65D"></a-cylinder>
+          <a-cylinder position="3 0.4 0" radius="0.25" height="1.1" rotation="0 0 90" color="#FFC65D"></a-cylinder>
+
+          <!-- item transportado, animado para simular movimiento -->
+          <a-box position="-3 0.65 0" width="0.4" height="0.4" depth="0.4" color="#EF2D5E"
+                 animation="property: position; from: -3 0.65 0; to: 3 0.65 0; dur: 4000; loop: true; easing: linear">
+          </a-box>
+          <a-text value="BANDA TRANSPORTADORA" position="0 1.1 0" align="center" color="#000" width="6"></a-text>
+        </a-entity>
+
+        <!-- ---- Sistema robotizado básico (base + brazo + efector) ---- -->
+        <a-entity id="robot" position="4 0 0">
+          <!-- base -->
+          <a-cylinder position="0 0.2 0" radius="0.5" height="0.4" color="#212529"></a-cylinder>
+          <!-- columna -->
+          <a-cylinder position="0 1 0" radius="0.2" height="1.2" color="#6C757D"></a-cylinder>
+          <!-- brazo -->
+          <a-box position="0.6 1.6 0" width="1.2" height="0.2" depth="0.2" color="#4CC3D9"
+                 rotation="0 0 20"
+                 animation="property: rotation; from: 0 0 20; to: 0 0 -20; dur: 2500; dir: alternate; loop: true">
+          </a-box>
+          <!-- efector / sensor final (a-sphere como indicador) -->
+          <a-sphere position="1.1 1.35 0" radius="0.12" color="#F72585"></a-sphere>
+          <a-text value="BRAZO ROBOTICO" position="0 2.1 0" align="center" color="#000" width="6"></a-text>
+        </a-entity>
+
+        <!-- ---- Sensores indicadores (a-sphere) distribuidos en la celda ---- -->
+        <a-sphere position="-4 2.4 0" radius="0.08" color="#38B000"></a-sphere>
+        <a-sphere position="0 1.3 0.6" radius="0.08" color="#38B000"></a-sphere>
+        <a-sphere position="4 2.2 0" radius="0.08" color="#38B000"></a-sphere>
+
+        <!-- ---- Paredes de referencia (a-plane) ---- -->
+        <a-plane position="0 2.5 -1.5" rotation="0 0 0" width="12" height="5" color="#CED4DA" opacity="0.4"></a-plane>
+      </a-entity>
+
+      <!-- ============ CÁMARA / RIG para navegación desktop, móvil y VR ============ -->
+      <a-entity id="rig" position="0 1.6 0" movement-controls>
+        <a-camera look-controls wasd-controls>
+          <a-cursor color="#FAFAFA"></a-cursor>
+        </a-camera>
+      </a-entity>
+
+    </a-scene>
+  </body>
+</html>
