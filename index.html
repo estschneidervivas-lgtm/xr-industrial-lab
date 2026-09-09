@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>XR Industrial Lab - UMNG</title>
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.1/dist/aframe-master.min.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+
+      #ui {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 999;
+        pointer-events: none;
+      }
+
+      #ui .header {
+        pointer-events: auto;
+        background: linear-gradient(90deg, #0b3d4d, #14586e);
+        color: #fff;
+        padding: 14px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+      }
+      #ui .header h1 {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+      #ui .header .subtitle {
+        font-size: 0.75rem;
+        opacity: 0.75;
+        margin-top: 2px;
+      }
+
+      #toolbar {
+        pointer-events: auto;
+        display: flex;
+        gap: 8px;
+        padding: 10px 20px;
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(4px);
+        border-bottom: 1px solid #dfe4e8;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: 1px solid #cfd6db;
+        background: #ffffff;
+        color: #1c2b33;
+        padding: 9px 16px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn:hover { background: #eef4f6; border-color: #9fb4bd; }
+      .btn.active {
+        background: #0b3d4d;
+        color: #fff;
+        border-color: #0b3d4d;
+        box-shadow: 0 3px 8px rgba(11,61,77,0.35);
+      }
+      .btn .dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        display: inline-block;
+      }
+      .btn.ghost { border-style: dashed; }
+
+      #info-panel {
+        pointer-events: none;
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        max-width: 320px;
+        background: rgba(11,61,77,0.92);
+        color: #fff;
+        padding: 14px 16px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+        z-index: 999;
+        transition: opacity 0.2s ease;
+      }
+      #info-panel strong { display: block; margin-bottom: 4px; font-size: 0.95rem; }
+
+      #hint {
+        pointer-events: none;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0,0,0,0.55);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="ui">
+      <div class="header">
+        <div>
+          <h1>XR Industrial Lab</h1>
+          <div class="subtitle">Ingeniería Mecatrónica · Realidad Virtual · UMNG</div>
+        </div>
+      </div>
+      <div id="toolbar">
+        <button class="btn" data-target="demo"><span class="dot" style="background:#8d99ae"></span>Punto A · Escena básica</button>
+        <button class="btn" data-target="tanque"><span class="dot" style="background:#3A86FF"></span>Tanque</button>
+        <button class="btn" data-target="banda"><span class="dot" style="background:#495057"></span>Banda transportadora</button>
+        <button class="btn" data-target="robot"><span class="dot" style="background:#FF6B00"></span>Brazo robótico</button>
+        <button class="btn ghost" data-target="todo">Ver toda la celda</button>
+      </div>
+    </div>
+
+    <div id="info-panel"></div>
+    <div id="hint">Click + arrastra para mirar alrededor · WASD para moverte</div>
+
+    <a-scene>
+
+      <!-- ============ ASSETS ============ -->
+      <!-- Descomenta cuando exista models/modelo.glb -->
+      <!--
+      <a-assets>
+        <a-asset-item id="modeloIndustrial" src="models/modelo.glb"></a-asset-item>
+      </a-assets>
+      -->
+
+      <!-- ============ PISO Y CIELO ============ -->
+      <a-plane rotation="-90 0 0" width="40" height="40" color="#B0B0B0"></a-plane>
+      <a-sky color="#DDEEFF"></a-sky>
+
+      <!-- ============ PARTE A: ESCENA BÁSICA (demo) ============ -->
+      <a-entity id="grupo-demo" position="-9 0 -6" visible="true">
+        <a-box position="0 1 0" rotation="0 45 0" color="#4CC3D9"></a-box>
+        <a-sphere position="2 1 -1" radius="1" color="#EF2D5E"></a-sphere>
+        <a-cylinder position="-2 1 -1" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+        <a-text value="PARTE A - PRIMITIVAS BASICAS" position="0 2.4 0" align="center" color="#000" width="8"></a-text>
+      </a-entity>
+
+      <!-- ============ CELDA DE MANUFACTURA ============ -->
+      <a-entity id="celda-manufactura" position="0 0 -6">
+
+        <!-- Tanque -->
+        <a-entity id="grupo-tanque" position="-4 0 0" visible="true">
+          <a-cylinder position="0 1 0" radius="0.8" height="2" color="#3A86FF"></a-cylinder>
+          <a-cylinder position="0 2.05 0" radius="0.85" height="0.1" color="#023E8A"></a-cylinder>
+          <a-text value="TANQUE" position="0 2.6 0" align="center" color="#000" width="4"></a-text>
+        </a-entity>
+
+        <!-- Banda transportadora -->
+        <a-entity id="grupo-banda" position="0 0 0" visible="true">
+          <a-box position="0 0.4 0" width="6" height="0.2" depth="1" color="#495057"></a-box>
+          <a-cylinder position="-3 0.4 0" radius="0.25" height="1.1" rotation="0 0 90" color="#FFC65D"></a-cylinder>
+          <a-cylinder position="3 0.4 0" radius="0.25" height="1.1" rotation="0 0 90" color="#FFC65D"></a-cylinder>
+          <a-box position="-3 0.65 0" width="0.4" height="0.4" depth="0.4" color="#EF2D5E"
+                 animation="property: position; from: -3 0.65 0; to: 3 0.65 0; dur: 4000; loop: true; easing: linear">
+          </a-box>
+          <a-text value="BANDA TRANSPORTADORA" position="0 1.1 0" align="center" color="#000" width="6"></a-text>
+        </a-entity>
+
+        <!-- Robot: brazo articulado de 4 ejes (base giratoria + hombro + codo + pinza),
+             construido con jerarquía de pivotes para que cada junta rote sobre su propio punto -->
+        <a-entity id="grupo-robot" position="4 0 0" visible="true">
+
+          <!-- placa base con franjas de seguridad -->
+          <a-cylinder position="0 0.05 0" radius="0.75" height="0.1" color="#1c1c1c"></a-cylinder>
+          <a-cylinder position="0 0.11 0" radius="0.78" height="0.02" color="#F4B400" segments-radial="16"></a-cylinder>
+
+          <!-- pedestal fijo -->
+          <a-cylinder position="0 0.4 0" radius="0.35" height="0.6" color="#2b2b2b"></a-cylinder>
+
+          <!-- EJE 1: base giratoria (rotación continua sobre Y) -->
+          <a-entity id="eje1-base" position="0 0.72 0"
+                    animation="property: rotation; to: 0 360 0; dur: 9000; loop: true; easing: linear">
+            <a-cylinder position="0 0.12 0" radius="0.32" height="0.24" color="#FF6B00"></a-cylinder>
+            <a-sphere position="0 0.26 0" radius="0.18" color="#212529"></a-sphere>
+
+            <!-- EJE 2: hombro (pivote en la base del brazo superior) -->
+            <a-entity id="eje2-hombro" position="0 0.32 0"
+                      animation="property: rotation; from: 0 0 -15; to: 0 0 35; dir: alternate; dur: 3200; loop: true; easing: easeInOutSine">
+              <a-box position="0 0.5 0" width="0.26" height="1" depth="0.26" color="#FF8C1A"></a-box>
+              <a-sphere position="0 1 0" radius="0.14" color="#212529"></a-sphere>
+
+              <!-- EJE 3: codo (pivote en el extremo del brazo superior) -->
+              <a-entity id="eje3-codo" position="0 1 0"
+                        animation="property: rotation; from: 0 0 20; to: 0 0 -60; dir: alternate; dur: 2600; loop: true; easing: easeInOutSine">
+                <a-box position="0 0.4 0" width="0.2" height="0.8" depth="0.2" color="#FFC145"></a-box>
+                <a-sphere position="0 0.8 0" radius="0.1" color="#212529"></a-sphere>
+
+                <!-- EJE 4: muñeca + pinza -->
+                <a-entity id="eje4-muneca" position="0 0.8 0"
+                          animation="property: rotation; from: 0 -20 0; to: 0 20 0; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine">
+                  <a-cylinder position="0 0.08 0" radius="0.08" height="0.16" color="#495057"></a-cylinder>
+                  <a-box position="-0.09 0.24 0" width="0.05" height="0.24" depth="0.12" color="#111"></a-box>
+                  <a-box position="0.09 0.24 0" width="0.05" height="0.24" depth="0.12" color="#111"></a-box>
+                </a-entity>
+              </a-entity>
+            </a-entity>
+          </a-entity>
+
+          <a-text value="ROBOT INDUSTRIAL 4 EJES" position="0 2.6 0" align="center" color="#000" width="6"></a-text>
+        </a-entity>
+
+      </a-entity>
+
+      <!-- ============ MODELO CAD (Parte D) ============ -->
+      <!-- Descomenta junto con <a-assets> arriba cuando tengas tu modelo.glb -->
+      <!--
+      <a-entity id="grupo-cad" gltf-model="#modeloIndustrial" position="0 0 -2" scale="1 1 1" rotation="0 0 0" visible="true"></a-entity>
+      -->
+
+      <!-- ============ CÁMARA / RIG ============ -->
+      <a-entity id="rig" position="-2 1.6 0">
+        <a-camera look-controls wasd-controls>
+          <a-cursor color="#FAFAFA"></a-cursor>
+        </a-camera>
+      </a-entity>
+
+    </a-scene>
+
+    <script>
+      const info = {
+        demo:   { label: "Punto A · Escena básica", text: "Primitivas geométricas básicas de A-Frame: a-box, a-sphere y a-cylinder sobre el plano." },
+        tanque: { label: "Tanque de almacenamiento", text: "Construido con dos a-cylinder (cuerpo y tapa)." },
+        banda:  { label: "Banda transportadora", text: "Estructura con a-box, rodillos con a-cylinder y una pieza animada que recorre la banda." },
+        robot:  { label: "Robot industrial 4 ejes", text: "Base giratoria + hombro + codo + muñeca, cada uno animado de forma independiente mediante jerarquía de pivotes (a-entity anidadas) para simular un robot articulado real." },
+        todo:   { label: "Celda de manufactura completa", text: "Vista general: tanque, banda transportadora y brazo robótico integrados." }
+      };
+
+      const groups = {
+        demo:   document.querySelector('#grupo-demo'),
+        tanque: document.querySelector('#grupo-tanque'),
+        banda:  document.querySelector('#grupo-banda'),
+        robot:  document.querySelector('#grupo-robot')
+      };
+
+      const cameraSpots = {
+        demo:   { x: -9, y: 1.6, z: 0 },
+        tanque: { x: -4, y: 1.6, z: -1 },
+        banda:  { x: 0,  y: 1.6, z: -1 },
+        robot:  { x: 4,  y: 1.8, z: -2 },
+        todo:   { x: -2, y: 2.4, z: 3 }
+      };
+
+      const rig = document.querySelector('#rig');
+      const infoPanel = document.querySelector('#info-panel');
+      const buttons = document.querySelectorAll('.btn');
+
+      function showOnly(target) {
+        Object.keys(groups).forEach(key => {
+          groups[key].setAttribute('visible', target === 'todo' || key === target);
+        });
+
+        const spot = cameraSpots[target];
+        rig.setAttribute('animation', {
+          property: 'position',
+          to: `${spot.x} ${spot.y} ${spot.z}`,
+          dur: 700,
+          easing: 'easeInOutQuad'
+        });
+
+        buttons.forEach(b => b.classList.toggle('active', b.dataset.target === target));
+
+        const data = info[target];
+        infoPanel.innerHTML = `<strong>${data.label}</strong>${data.text}`;
+      }
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => showOnly(btn.dataset.target));
+      });
+
+      showOnly('todo');
+    </script>
+  </body>
+</html>
